@@ -12,9 +12,12 @@ public class MovementAI {
 	private Location targetlocation;
 	public AIPath aipath;
 	public int fpscounter = 0;
+    public int fpsreset;
 	public Node currentNode;
+    public static float lastRepathTime;
 
 	public MovementAI(eTile[,] mapdata) {
+        fpsreset = UnityEngine.Random.Range(-2,2)+40;
 		this.mapdata = mapdata;
 	}
 
@@ -36,7 +39,7 @@ public class MovementAI {
 		}
 
 		// Repeat while we are not at the target location
-		while (current.loc != null && !current.loc.equals(targetlocation)) {
+		while (current != null && targetlocation != null && !current.loc.equals(targetlocation)) {
 			checkNeighbors(current);
 			
 			current.state = NodeState.Closed;
@@ -45,6 +48,8 @@ public class MovementAI {
 		
 		// Get the path and spawn balls to indicate the path
 		aipath = new AIPath (current);
+        if(aipath != null)
+            lastRepathTime = Time.time;
 		return aipath;
 	}
 

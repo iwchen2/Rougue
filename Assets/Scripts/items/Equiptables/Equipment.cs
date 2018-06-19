@@ -1,51 +1,59 @@
 ﻿using UnityEngine;
+using UnitySampleAssets.CrossPlatformInput;
 using System.Collections;
 
-public class Equipment : MonoBehaviour {
-	
-	public GameObject equipmentPlayerRefrence;
-	public Player equipper;
-	public equipmentStats weaponStats;
-	public int str;
+public abstract class Equipment : MonoBehaviour {
+
+	public Player PlayerReference;
+	public equipmentStats eqStats;
+	public int strength;
 	public int agility;
 	public int intelligence;
-	void Start () 
-	{
-		if (equipmentPlayerRefrence == null) 
-		{
-			equipmentPlayerRefrence = GameObject.FindGameObjectWithTag("Player");
-			equipper = equipmentPlayerRefrence.GetComponent<Player>();
+	public bool canBePickedUp;
+
+	void Start() {
+		PlayerReference = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+		;
+		canBePickedUp = false;
+		if(eqStats == null) {
+			eqStats = new equipmentStats(strength, agility, intelligence);
 		}
-
-		weaponStats = new equipmentStats (str,agility,intelligence);
 	}
 
+	public void setStats(int str, int agi, int intl) {
+		Debug.Log(str);
+		strength = str;
+		agility = agi;
+		intelligence = intl;
+		if(eqStats == null) {
+			eqStats = new equipmentStats(str, agi, intl);
+		} else {
+			eqStats.strength = str;
+			eqStats.agility = agi;
+			eqStats.intelligence = intl;
 
-	void Update () {
-	
+		}
 	}
 
-	public void addWeapon(Weapon weapon)
-	{
-		equipper.equippedSword  = weaponStats;
-		print (equipper.equippedSword);
+	void OnTriggerExit2D(Collider2D person) {
+		if(person.gameObject.tag == "Player") {
+			canBePickedUp = false;
+		}
 	}
 
-	public void addHelmet(Helmet helmet)
-	{
-		equipper.equippedHelmet  = weaponStats;
-		print (equipper.equippedHelmet);
+	void OnTriggerEnter2D(Collider2D person) {
+		if(person.gameObject.tag == "Player") {
+			canBePickedUp = true;
+		}
 	}
 
-	public void addArmor(Armor armor)
-	{
-		equipper.equippedArmor  = weaponStats;
-		print (equipper.equippedArmor);
+	public void Update() {
+		if(canBePickedUp && CrossPlatformInputManager.GetButtonDown("Item")) {
+			addEquipment();
+			Destroy(gameObject);
+		}
 	}
 
-	public void addNecklace(Necklace necklace)
-	{
-		equipper.equippedNecklace  = weaponStats;
-		print (equipper.equippedNecklace);
-	}
+	public abstract void addEquipment();
+
 }
